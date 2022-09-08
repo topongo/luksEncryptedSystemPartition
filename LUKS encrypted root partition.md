@@ -96,7 +96,7 @@ To do this we need to:
 - One subtle step in which I struggled was the `vconsole.conf` file: during the recreation of the initial ramdisk when you include `sd-encrypt` mkinitcpio will search inside the file `/etc/vconsole.conf` to find which keyboard layout you are using, if it doesn't it will fail to insert `sd-encrypt` silently (aka without us knowing), so it's important to make sure this file exists and inside it there is this line:
 `KEYMAP={keymap}` where *keymap* is your keyboard layout (eg. `us`, `it`, ecc. Use `localectl list-keymaps` for finding the right one for you.)
 - Next we create this file `/etc/crypttab.initramfs` and inside of it we insert the disk we want to unlock:
-	``` python
+	```shell
 	# Mount /dev/sdaX as /dev/mapper/root, /dev/mapper/home and /dev/mapper/var
 	# using LUKS and prompt for the passphrase at boot time.
 	root    /dev/sda3
@@ -105,9 +105,9 @@ To do this we need to:
 	```
 	*`/etc/crypttab.initramfs`  will be included in the initial ramdisk image under `/etc/crypttab` and is used by `sd-encrypt` to know which partitions, disks or virtual partitions will need to be unlocked before booting. For more information on this file formatting look at the [this page](https://wiki.archlinux.org/title/Dm-crypt/System_configuration#crypttab) on the arch wiki.*
 - Now we have to update our `/etc/fstab`: if we only used UUID then we have no issues, because the partition uuid is mantained during encryption and therefore after the partition has been unencrypted its original uuid will be present in our system. If we instead used device dynamic number then we will need to modify the lines...
-	``` python
+	```shell
 	# ...from this
-	/dev/sda1	/	ext4	defaults,noatime	0 0
+	/dev/sda1			/	ext4	defaults,noatime	0 0
 	# to this
 	/dev/mapper/{mapper-name}	/	ext4	defaults,noatime	0 0
 	# or use partitions uuids,
